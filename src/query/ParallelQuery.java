@@ -27,17 +27,35 @@ public class ParallelQuery extends AbstractQuery {
 		this.index = index;
 
 		StringTokenizer tokenizer = new StringTokenizer(queryString);
-
 		if (tokenizer.countTokens() == 0) {
 			results = null;
 		} else {
 			while (tokenizer.hasMoreTokens()) {
-				QueryWordTask qt = new QueryWordTask(tokenizer.nextToken());
-				threadPool.execute(qt);
-				queryWordTasks.add(qt);
+				String temp = tokenizer.nextToken();
+				if(palavra_aceitavel(temp)){
+					QueryWordTask qt = new QueryWordTask(temp);
+					threadPool.execute(qt);
+					queryWordTasks.add(qt);
+				}
 
 			}
 		}
+	}
+	
+	/**
+	 * Verifica se a palavra é aceitavel, ou seja, caso a palavra tenha entre 3 e 15 caracteres
+	 * e apenas contenha letras de a - z é aceitavel.
+	 * @param word String com a palavra recolhida
+	 * @return verdadeiro se a palavra for aceitavel, falso caso contrário
+	 */
+	public boolean palavra_aceitavel(String word) {
+		if (word != null && word.length() > 3 && word.length() < 15) {
+			for (int i = 0; i < word.length(); i++)
+				if (!(word.charAt(i) >= 'a' && word.charAt(i) <= 'z'))
+					return false;
+			return true;
+		}
+		return false;
 	}
 
 	class QueryWordTask implements Runnable {
